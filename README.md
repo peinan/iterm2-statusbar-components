@@ -1,6 +1,8 @@
 # iTerm2 Status bar components
 Components for iTerm2's status bar.
 
+![](imgs/screenshot.png)
+
 ## Components
 
 - [x] Weather Info
