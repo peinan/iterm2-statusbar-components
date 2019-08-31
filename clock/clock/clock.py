@@ -20,7 +20,7 @@ async def main(connection):
     @iterm2.StatusBarRPC
     async def clock(knobs):
         n = datetime.now()
-        clock_char = '\uE94F'
+        clock_char = ''
         if fmt in knobs and knobs[fmt]:
             clock_face = f'{clock_char} {n.strftime(knobs[fmt])}'
         else:
