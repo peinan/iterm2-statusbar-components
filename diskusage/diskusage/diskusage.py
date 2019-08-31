@@ -1,5 +1,7 @@
-import iterm2
 import shutil
+from dataclasses import dataclass
+
+import iterm2
 
 
 def sizeof_fmt(num, suffix='B'):
@@ -10,15 +12,20 @@ def sizeof_fmt(num, suffix='B'):
     return f'{num:.1f}', f'Y{suffix}'
 
 
-async def main(connection):
-    opt_free = 'opt_free'
-    opt_ut = 'opt_ut'
-    opt_usedp = 'opt_usedp'
+@dataclass
+class KnobOption:
+    name: str
+    v: bool
 
+
+async def main(connection):
+    knob_free = KnobOption('free', True)
+    knob_usedtotal = KnobOption('usedtotal', True)
+    knob_usedpercent = KnobOption('usedpercent', True)
     knobs = [
-        iterm2.CheckboxKnob(name='Show Free Space', default_value=True, key=opt_free),
-        iterm2.CheckboxKnob(name='Show Used/Total Space', default_value=True, key=opt_ut),
-        iterm2.CheckboxKnob(name='Show Used Space (%)', default_value=True, key=opt_usedp),
+        iterm2.CheckboxKnob(name='Show Free Space', default_value=knob_free.v, key=knob_free.name),
+        iterm2.CheckboxKnob(name='Show Used/Total Space', default_value=knob_usedtotal.v, key=knob_usedtotal.name),
+        iterm2.CheckboxKnob(name='Show Used Space (%)', default_value=knob_usedpercent.v, key=knob_usedpercent.name),
     ]
 
     component = iterm2.StatusBarComponent(
@@ -30,22 +37,24 @@ async def main(connection):
         identifier='peinan.diskusage'
     )
 
+    def is_true_knob(knobs, knob_option: KnobOption):
+        return knob_option.name in knobs and knobs[knob_option.name]
+
     @iterm2.StatusBarRPC
     async def diskusage(knobs):
-        true_opt_free = opt_free in knobs and knobs[opt_free]
-        true_opt_ut = opt_ut in knobs and knobs[opt_ut]
-        true_opt_usedp = opt_usedp in knobs and knobs[opt_usedp]
+        true_free = is_true_knob(knobs, knob_free)
+        true_usedtotal = is_true_knob(knobs, knob_usedtotal)
+        true_usedpercent = is_true_knob(knobs, knob_usedpercent)
 
         disk_char = ''
-        free_total_char = ' ' if (opt_free in knobs and knobs[opt_free]) and \
-                                       (opt_ut in knobs and knobs[opt_ut]) else ''
+        free_total_char = ' ' if true_free and true_usedtotal else ''
         disk = shutil.disk_usage('/')
         unit = sizeof_fmt(disk.total)[1]
 
-        v_free = f' {" ".join(sizeof_fmt(disk.free))}' if true_opt_free else ''
-        v_usedtotal = f' {sizeof_fmt(disk.used)[0]}/{sizeof_fmt(disk.total)[0]} {unit}' if true_opt_ut else ''
-        v_usedp = f' ({100 * disk.used / disk.total:.1f}%)' if (true_opt_free or true_opt_ut) and true_opt_usedp\
-                  else f' {100 * disk.used / disk.total:.1f}%' if true_opt_usedp else ''
+        v_free = f' {" ".join(sizeof_fmt(disk.free))}' if true_free else ''
+        v_usedtotal = f' {sizeof_fmt(disk.used)[0]}/{sizeof_fmt(disk.total)[0]} {unit}' if true_usedtotal else ''
+        v_usedp = f' ({100 * disk.used / disk.total:.1f}%)' if (true_free or true_usedtotal) and true_usedpercent\
+                  else f' {100 * disk.used / disk.total:.1f}%' if true_usedpercent else ''
 
         usage = f'{disk_char}{v_free}{free_total_char}{v_usedtotal}{v_usedp}'
 
