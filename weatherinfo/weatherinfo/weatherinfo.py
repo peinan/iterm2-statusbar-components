@@ -126,7 +126,7 @@ class WeatherInfo:
         return text
 
 
-CONFIG = json.load(open('./config.json'))
+CONFIG = json.load((Path(__file__).parent / 'config.json').open())
 APIKEY = CONFIG['OpenWeatherAPIKey']
 LOGFILE_PATH = Path('/tmp/iterm-weatherinfo.log')
 w = WeatherInfo()
