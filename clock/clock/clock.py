@@ -4,10 +4,14 @@ import iterm2
 
 
 async def main(connection):
+    fmt = 'fmt'
+    default_fmt = '%m/%d %a %H:%M:%S'
+    knobs = [iterm2.StringKnob(name='format', placeholder=default_fmt,
+                               default_value=default_fmt, key=fmt)]
     component = iterm2.StatusBarComponent(
         short_description='Clock',
         detailed_description='A customized clock.',
-        knobs=[],
+        knobs=knobs,
         exemplar=' 08/03 Sat 01:56:48',
         update_cadence=1,
         identifier='peinan.clock'
@@ -16,18 +20,11 @@ async def main(connection):
     @iterm2.StatusBarRPC
     async def clock(knobs):
         n = datetime.now()
-        weekid2lang = {
-            0: 'Mon',
-            1: 'Tue',
-            2: 'Wed',
-            3: 'Thu',
-            4: 'Fri',
-            5: 'Sat',
-            6: 'Sun',
-        }
         clock_char = '\uE94F'
-        clock_face = f'{clock_char} {n.month:02d}/{n.day:02d} {weekid2lang[n.weekday()]} '\
-                     f'{n.hour:02d}:{n.minute:02d}:{n.second:02d}'
+        if fmt in knobs and knobs[fmt]:
+            clock_face = f'{clock_char} {n.strftime(knobs[fmt])}'
+        else:
+            clock_face = f'{clock_char} {n.strftime(default_fmt)}'
 
         return clock_face
 
