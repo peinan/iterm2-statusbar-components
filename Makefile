@@ -1,24 +1,29 @@
 CURRENT_DIR := $(shell echo `pwd`)
-COMPONENT_DIR := components
+COMPONENT_CLOCK := clock
+COMPONENT_DISKUSAGE := diskusage
+COMPONENT_WEATHERINFO := weatherinfo
+COMPONENT_ALL := $(COMPONENT_CLOCK) $(COMPONENT_DISKUSAGE) $(COMPONENT_WEATHERINFO)
 INSTALL_PATH := ${HOME}/Library/Application Support/iTerm2/Scripts/AutoLaunch
 
 
-.PHONY: install
-install:
+.PHONY: install-all
+install-all:
 	mkdir -p "$(INSTALL_PATH)"
-	for f in `ls $(COMPONENT_DIR)/*.py`; do ln -s "$(CURRENT_DIR)/$$f" "$(INSTALL_PATH)/`basename $$f`"; done
+	cp -r  $(COMPONENT_ALL) $(INSTALL_PATH)
 	ls "$(INSTALL_PATH)"
 
-.PHONY: install-dryrun
-install-dryrun:
-	for f in `ls $(COMPONENT_DIR)/*.py`; do echo "ln -s '$(CURRENT_DIR)/$$f' '$(INSTALL_PATH)/`basename $$f`'"; done
+.PHONY: install-clock
+install-clock:
+	mkdir -p "$(INSTALL_PATH)"
+	cp -r  $(COMPONENT_CLOCK) "$(INSTALL_PATH)"
+	ls "$(INSTALL_PATH)"
 
-.PHONY: uninstall
+.PHONY: uninstall-all
 uninstall:
-	for f in `ls $(COMPONENT_DIR)/*.py`; do unlink "$(INSTALL_PATH)/`basename $$f`"; done
+	for dir in $(COMPONENT_ALL); do rm -rf $(INSTALL_PATH)/$$dir; done
 	ls "$(INSTALL_PATH)"
 
-.PHONY: uninstall-dryrun
-uninstall-dryrun:
-	for f in `ls $(COMPONENT_DIR)/*.py`; do echo "unlink '$(INSTALL_PATH)/`basename $$f`'"; done
-
+.PHONY: test
+test:
+	echo $(COMPONENT_ALL)
+	for dir in $(COMPONENT_ALL); do echo $(INSTALL_PATH)/$$dir; done
