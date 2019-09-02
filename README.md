@@ -1,5 +1,6 @@
-# iTerm2 Status Bar components
-😎 Coooool components for iTerm2's status bar 🤟
+<h1 align="center">iTerm2 Status Bar components</h1>
+
+<p align="center">😎 Coooool components for iTerm2's status bar 🤟</p>
 
 ![](screenshots/main.png)
 
