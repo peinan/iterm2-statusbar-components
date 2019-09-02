@@ -71,6 +71,9 @@ So use a font with Nerd Fonts will bring you a better UI.
 
 Change font from preference panel: **Profiles > Text > Font**
 
+BTW: I'm using delphinus' [SF Mono Square](https://github.com/delphinus/homebrew-sfmono-square).
+![](https://user-images.githubusercontent.com/1239245/58253912-802c3480-7da4-11e9-9936-1f68326b9c38.png)
+
 ### Run `make install-all`
 
 and it copy the components to the AutoLaunch directory.
