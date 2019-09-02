@@ -1,7 +1,7 @@
-# iTerm2 Status bar components
-Components for iTerm2's status bar.
+# iTerm2 Status Bar components
+😎 Coooool components for iTerm2's status bar 🤟
 
-![](imgs/screenshot.png)
+![](screenshots/main.png)
 
 ## Components
 
@@ -9,14 +9,35 @@ Components for iTerm2's status bar.
 - [x] Disk Usage
 - [x] Clock
 
+## Features
+
+### Weather Info
+
+Now you don't have to take any trouble to check the website to get weather or temperature information.
+
+![](screenshots/weather.png)
+
+Of course, you can set your city, change the units from Celsius to Fahrenheit and configure what you like.
+
+![](screenshots/weather_settings.png)
+
+### Disk Usage
+
+A useful display that helps you to get disk usage information.
+
+![](screenshots/diskusage.png)
+
+You can customize the view as you like.
+
+![](screenshots/diskusage_settings.png)
+
 ## Install
 
-- Enable iTerm2's Python API
-- Install iTerm2's Python Runtime
-- Install packages using **iTerm's pip**
-- Set up the configs
-- (Optional) Set up your fonts for a better look
-- Run `make install`
+- Enable iTerm2's Python API.
+- Install iTerm2's Python Runtime.
+- (Optional) Set up the configs.
+- (Optional) Using NerdFont ready font will bring you a better look.
+- Run `make install-all` to install all components at once or run like `make install-weather` to just install specific component.
 
 ### Enable iTerm2's Python API
 
@@ -26,40 +47,33 @@ Preference Panel: **General > Magic > Enable Python API**
 
 Menubar: **Scripts > Manage > Install Python Runtime**
 
-### Install packages using **iTerm2's pip**
+### (Optional) Set up the configs
 
-Use **iTerm2's pip** to install required packages.
-
-```bash
-~/Library/Application Support/iTerm2/iterm2env/versions/3.7.2/bin/pip install -r requirements.txt
-```
-
-### Set up the configs
+You have to register OpenWeather's account and get your API Key [here](https://home.openweathermap.org/api_keys) in case of using weather component.
 
 Create `config.json` in the `components` directory and set
 
-- `PipPackagePath`: iTerm2's pip env path
 - `OpenWeatherAPIKey`: (optional) OpenWeather API key
 
 Example:
 
 ```config.json
 {
-  "PipPackagePath": "~/Library/Application Support/iTerm2/iterm2env-53/versions/3.7.2/lib/python3.7/site-packages",
   "OpenWeatherAPIKey": "xxxxx"
 }
 ```
 
-### (Optional) Set up your fonts for a better look
 
-These components are using a lot of glyphs from [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts).
-So use the font with Nerd Fonts will bring you a better UI.
+### (Optional) Using NerdFont ready font will bring you a better look
+
+These components are using a lot of glyphs from [NerdFonts](https://github.com/ryanoasis/nerd-fonts).
+So use a font with Nerd Fonts will bring you a better UI.
 
 Change font from preference panel: **Profiles > Text > Font**
 
-### Run `make install`
+### Run `make install-all`
 
-and it will create symbolic links.
+and it copy the components to the AutoLaunch directory.
 
 ## Usage
 
