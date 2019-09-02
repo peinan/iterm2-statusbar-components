@@ -1,7 +1,7 @@
 # iTerm2 Status Bar components
 😎 Coooool components for iTerm2's status bar 🤟
 
-![](_imgs/screenshot.png)
+![](screenshots/main.png)
 
 ## Components
 
@@ -9,11 +9,33 @@
 - [x] Disk Usage
 - [x] Clock
 
+## Features
+
+### Weather Info
+
+Now you don't have to take any trouble to check the website to get weather or temperature information.
+
+![](screenshots/weather.png)
+
+Of course, you can set your city, change the units from Celsius to Fahrenheit and configure what you like.
+
+![](screenshots/weather_settings.png)
+
+### Disk Usage
+
+A useful display that helps you to get disk usage information.
+
+![](screenshots/diskusage.png)
+
+You can customize the view as you like.
+
+![](screenshots/diskusage_settings.png)
+
 ## Install
 
 - Enable iTerm2's Python API.
 - Install iTerm2's Python Runtime.
-- Set up the configs.
+- (Optional) Set up the configs.
 - (Optional) Using NerdFont ready font will bring you a better look.
 - Run `make install-all` to install all components at once or run like `make install-weather` to just install specific component.
 
@@ -25,7 +47,9 @@ Preference Panel: **General > Magic > Enable Python API**
 
 Menubar: **Scripts > Manage > Install Python Runtime**
 
-### Set up the configs
+### (Optional) Set up the configs
+
+You have to register OpenWeather's account and get your API Key [here](https://home.openweathermap.org/api_keys) in case of using weather component.
 
 Create `config.json` in the `components` directory and set
 
@@ -38,6 +62,7 @@ Example:
   "OpenWeatherAPIKey": "xxxxx"
 }
 ```
+
 
 ### (Optional) Using NerdFont ready font will bring you a better look
 
