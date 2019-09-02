@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Union
+from urllib import request as urlreq, parse as urlparse
 
 import iterm2
-import requests
 
 
 class WeatherInfo:
@@ -52,10 +52,12 @@ class WeatherInfo:
         self.t3s = f'{self.NA}'
 
     def build_url(self, mode='current') -> str:
+        params = self.build_params()
+
         if mode == 'current':
-            url = f'{self.ENDPOINT}{self.CURRENT_WEATHER_URL}'
+            url = f'{self.ENDPOINT}{self.CURRENT_WEATHER_URL}?{urlparse.urlencode(params)}'
         elif mode == 'forecast':
-            url = f'{self.ENDPOINT}{self.FORECAST_URL}'
+            url = f'{self.ENDPOINT}{self.FORECAST_URL}?{urlparse.urlencode(params)}'
         else:
             raise ValueError(f'Invalid mode={mode}: choose from `current` or `forecast`.')
 
@@ -69,19 +71,18 @@ class WeatherInfo:
         }
 
     def fetch_weather(self):
-        self.current_weather = requests.get(self.build_url('current'), params=self.build_params())
-        self.forecast_weather = requests.get(self.build_url('forecast'), params=self.build_params())
-
-        if self.current_weather.status_code != 200 or self.forecast_weather.status_code != 200:
+        try:
+            with urlreq.urlopen(urlreq.Request(self.build_url('current'))) as res:
+                self.current_weather = json.load(res)
+            with urlreq.urlopen(urlreq.Request(self.build_url('forecast'))) as res:
+                self.forecast_weather = json.load(res)
+            self.fetch_status = 'SUCCEEDED'
+        except:
+            print(f'[ERROR] Fetch failed: {traceback.format_exc()}')
             self.fetch_status = 'FAILED'
-        else:
-            self.fetch_status = 'SUCCEED'
 
     def parse_weather(self):
         try:
-            self.current_weather = self.current_weather.json()
-            self.forecast_weather = self.forecast_weather.json()
-
             self.lat = self.current_weather['coord']['lat']
             self.lon = self.current_weather['coord']['lon']
             self.dt = datetime.fromtimestamp(self.current_weather['dt'], self.tz)
@@ -134,41 +135,10 @@ class WeatherInfo:
         return text
 
 
-def is_refresh_time():
-    now = datetime.now()
-    return now.minute % 10 == 0
-
-
-def have_log():
-    return LOGFILE_PATH.exists()
-
-
-def read_log():
-    return json.load(LOGFILE_PATH.open())
-
-
-def write_log(city: str, use_icon: bool, units: str, show_forecast: bool, weather_info: str):
-    log_data = {
-        'city': city,
-        'use_icon': use_icon,
-        'units': units,
-        'show_forecast': show_forecast,
-        'weather_info': weather_info
-    }
-    json.dump(log_data, LOGFILE_PATH.open('w'), ensure_ascii=False)
-
-
 @dataclass
 class KnobOption:
     name: str
     v: Union[str, bool]
-
-
-CONFIG = json.load((Path(__file__).parent / 'config.json').open())
-APIKEY = CONFIG['OpenWeatherAPIKey']
-LOGFILE_PATH = Path('/tmp/iterm-weatherinfo.log')
-w = WeatherInfo()
-w.APIKEY = APIKEY
 
 
 async def main(connection):
@@ -187,27 +157,62 @@ async def main(connection):
         short_description='Weather Info',
         detailed_description='A component that will tell you the current weather and the forecast.',
         knobs=knobs,
-        exemplar=' Clouds  27.1   Clear  27.1',
+        exemplar=' Clouds  27.1   Clear  30.2',
         update_cadence=60,
         identifier='peinan.weather'
     )
 
-    def is_true_knob(knobs, knob_option: KnobOption):
-        return bool(knob_option.name in knobs and knobs[knob_option.name])
+    def have_log():
+        return LOGFILE_PATH.exists()
+
+    def is_refresh_time():
+        return datetime.now().minute % 10 == 0
+
+    def is_opt_modify(knobs):
+        opt_set = { k.name for k in [knob_city, knob_use_icon, knob_use_imperial, knob_show_forecast] }
+        if set(knobs.keys()) & opt_set == opt_set:
+            return True
+        return False
+
+    def read_log():
+        return json.load(LOGFILE_PATH.open())
+
+    def write_log(city: str, use_icon: bool, units: str, show_forecast: bool, weather_info: str):
+        log_data = {
+            'city': city,
+            'use_icon': use_icon,
+            'units': units,
+            'show_forecast': show_forecast,
+            'weather_info': weather_info
+        }
+        json.dump(log_data, LOGFILE_PATH.open('w'), ensure_ascii=False)
+
+    def knob_value(knobs, option: KnobOption, default_value):
+        """returns the option's value if the option is in the knob, otherwise returns False"""
+        return knobs[option.name] if option.name in knobs else default_value
 
     @iterm2.StatusBarRPC
     async def weather_info(knobs):
-        w.CITYNAME = knobs[knob_city.name] if is_true_knob(knobs, knob_city) else 'Shibuya'
-        w.UNITS = 'imperial' if is_true_knob(knobs, knob_use_imperial) else 'metric'
-        use_icon = knobs[knob_use_icon.name] if is_true_knob(knobs, knob_use_icon) else False
-        show_forecast = knobs[knob_show_forecast.name] if is_true_knob(knobs, knob_show_forecast) else False
+        w.CITYNAME = knob_value(knobs, knob_city, 'Shibuya')
+        w.UNITS = 'imperial' if knob_value(knobs, knob_use_imperial, False) else 'metric'
+        use_icon = bool(knob_value(knobs, knob_use_icon, True))
+        show_forecast = bool(knob_value(knobs, knob_show_forecast, True))
 
-        # print(w.CITYNAME, w.UNITS, use_icon, show_forecast)  # for debug
+        ## for debug
+        # print(f'knobs: {knobs}')
+        # print(f'have log file: {have_log()}, is refresh time: {is_refresh_time()}')
 
         if have_log():
             log_data = read_log()
-            if not is_refresh_time() and (w.CITYNAME == log_data['city'] and w.UNITS == log_data['units'] and
-               use_icon == log_data['use_icon'] and show_forecast == log_data['show_forecast']):
+            opt_req = is_opt_modify(knobs)
+            is_same_opt = w.CITYNAME == log_data['city'] and w.UNITS == log_data['units'] and \
+                          use_icon == log_data['use_icon'] and show_forecast == log_data['show_forecast']
+
+            # print(f'is knob option request: {opt_req}, is same knob options: {is_same_opt}')
+
+            if not opt_req or (is_same_opt and not is_refresh_time()):
+                # print(f'[application info] Use stored weather info: '
+                #       f'city={w.CITYNAME}, units={w.UNITS}, use_icon={use_icon}, show_forecast={show_forecast}')
                 return log_data['weather_info']
 
         print(f'[application info] Fetching weather: {knobs}')
@@ -219,6 +224,13 @@ async def main(connection):
         return weather_info
 
     await component.async_register(connection, weather_info)
+
+
+CONFIG = json.load((Path(__file__).parent / 'config.json').open())
+APIKEY = CONFIG['OpenWeatherAPIKey']
+LOGFILE_PATH = Path('/tmp/iterm-weatherinfo.log')
+w = WeatherInfo()
+w.APIKEY = APIKEY
 
 
 iterm2.run_forever(main)
