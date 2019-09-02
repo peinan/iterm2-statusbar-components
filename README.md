@@ -1,5 +1,5 @@
-# iTerm2 Status bar components
-Components for iTerm2's status bar.
+# iTerm2 Status Bar components
+😎 Coooool components for iTerm2's status bar 🤟
 
 ![](_imgs/screenshot.png)
 
@@ -11,12 +11,11 @@ Components for iTerm2's status bar.
 
 ## Install
 
-- Enable iTerm2's Python API
-- Install iTerm2's Python Runtime
-- Install packages using **iTerm's pip**
-- Set up the configs
-- (Optional) Set up your fonts for a better look
-- Run `make install`
+- Enable iTerm2's Python API.
+- Install iTerm2's Python Runtime.
+- Set up the configs.
+- (Optional) Using NerdFont ready font will bring you a better look.
+- Run `make install-all` to install all components at once or run like `make install-weather` to just install specific component.
 
 ### Enable iTerm2's Python API
 
@@ -26,40 +25,30 @@ Preference Panel: **General > Magic > Enable Python API**
 
 Menubar: **Scripts > Manage > Install Python Runtime**
 
-### Install packages using **iTerm2's pip**
-
-Use **iTerm2's pip** to install required packages.
-
-```bash
-~/Library/Application Support/iTerm2/iterm2env/versions/3.7.2/bin/pip install -r requirements.txt
-```
-
 ### Set up the configs
 
 Create `config.json` in the `components` directory and set
 
-- `PipPackagePath`: iTerm2's pip env path
 - `OpenWeatherAPIKey`: (optional) OpenWeather API key
 
 Example:
 
 ```config.json
 {
-  "PipPackagePath": "~/Library/Application Support/iTerm2/iterm2env-53/versions/3.7.2/lib/python3.7/site-packages",
   "OpenWeatherAPIKey": "xxxxx"
 }
 ```
 
-### (Optional) Set up your fonts for a better look
+### (Optional) Using NerdFont ready font will bring you a better look
 
-These components are using a lot of glyphs from [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts).
-So use the font with Nerd Fonts will bring you a better UI.
+These components are using a lot of glyphs from [NerdFonts](https://github.com/ryanoasis/nerd-fonts).
+So use a font with Nerd Fonts will bring you a better UI.
 
 Change font from preference panel: **Profiles > Text > Font**
 
-### Run `make install`
+### Run `make install-all`
 
-and it will create symbolic links.
+and it copy the components to the AutoLaunch directory.
 
 ## Usage
 
