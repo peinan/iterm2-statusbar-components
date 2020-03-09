@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Union
 from urllib import request as urlreq, parse as urlparse
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 import iterm2
 
